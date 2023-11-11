@@ -1,5 +1,6 @@
 /* Resetting default margin and padding */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -62,4 +63,8 @@ input {
 input:focus {
   outline: none;
   border: 2px solid #3498db;
+}
+
+#pausedText {
+  font-size: 130%;
 }

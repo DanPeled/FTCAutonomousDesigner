@@ -53,7 +53,7 @@ function initHTML() {
   convertButton = createButton("Convert");
   convertButton.position(10, height + 40);
   convertButton.mousePressed(convert);
-  createP('paused').position(width, 500).id("pausedText");
+  createP('paused').position(width - 30, 560).id("pausedText");
 }
 
 function updatePos() {
@@ -130,7 +130,9 @@ function doPath() {
 
     // Check if the robot is close enough to the waypoint
     let distance = dist(robot.x, robot.y, point.x, point.y);
-    if (distance < 0.04) {
+    if (distance < 0.03) {
+      robot.setX(point.x);
+      robot.setY(point.y);
       rotationAngle = radians(point.angle);
       tempWaypoints.shift();
     }
