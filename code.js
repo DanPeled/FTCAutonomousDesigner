@@ -17,6 +17,7 @@ let path = [];
 let draggedWaypoint = -1;
 let isPaused = false;
 let speedFactor = 1.5;
+
 function setup() {
   rotationAngle = 0;
   img = loadImage('field.webp');
@@ -25,7 +26,7 @@ function setup() {
   robot = new Robot(tile + 1, 0, 40);
   waypoints = [
     new Waypoint(tile + 1, 0, 0),
-    new Waypoint(tile + 1, 2.5, 0),
+    new Waypoint(tile + 1, 2.5, 90),
     new Waypoint(tile - 1, 2.5, 0),
     new Waypoint(tile - 2.5, 1, 0)
   ];
@@ -114,14 +115,23 @@ function doPath() {
   if (!isPaused && tempWaypoints.length > 0) {
     let point = tempWaypoints[0];
     let d = 0.045 * speedFactor;
+    if (rotationAngle > radians(point.angle)) {
+      rotationAngle -= 0.04;
+    }
+    if (rotationAngle < radians(point.angle)) {
+      rotationAngle += 0.04;
+    }
+    updateRotationInput();
+    // Move the robot
     let m = createVector(point.x - robot.x, point.y - robot.y);
     m.normalize();
-
     robot.setX(robot.x + m.x * d);
     robot.setY(robot.y + m.y * d);
 
+    // Check if the robot is close enough to the waypoint
     let distance = dist(robot.x, robot.y, point.x, point.y);
     if (distance < 0.04) {
+      rotationAngle = radians(point.angle);
       tempWaypoints.shift();
     }
   }
@@ -176,7 +186,6 @@ function mouseDragged() {
       // Undo the canvas transformations to get the mouse position in the original coordinate system
       let canvasMouse = createVector(mouseX - 100, mouseY + 200);
       let worldMouse = canvasToWorld(canvasMouse);
-      console.log(worldMouse.y)
       // Use dragOffset to adjust the waypoint position accurately
       waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.3);
       waypoints[draggedWaypoint].y = constrain(worldMouse.y, -0.38, 5.3);
@@ -232,19 +241,24 @@ function keyTyped() {
   if (key === 'z') {
     showImage = !showImage;
   } else if (key === 'r') {
-    isPaused = true;
-    tempWaypoints = Array.from(waypoints);
-    robot.setX(tempWaypoints[0].x);
-    robot.setY(tempWaypoints[0].y);
-    rotationAngle = 0;
-    path = [];
-    isPaused = false;
-    doPath();
+    restart();
   } else if (key === 'k') {
     isPaused = !isPaused;
   }
 }
-
+function restart() {
+  var wasPaused = isPaused;
+  if (!wasPaused)
+    isPaused = true;
+  tempWaypoints = Array.from(waypoints);
+  robot.setX(tempWaypoints[0].x);
+  robot.setY(tempWaypoints[0].y);
+  rotationAngle = 0;
+  path = [];
+  if (!wasPaused)
+    isPaused = false;
+  doPath();
+}
 
 function updateRotation() {
   let inputAngle = parseFloat(rotationInput.value());
