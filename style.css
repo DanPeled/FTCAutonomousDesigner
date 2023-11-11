@@ -1,18 +1,25 @@
-html,
-body {
+/* Resetting default margin and padding */
+html, body {
   margin: 0;
   padding: 0;
-  background-color: rgb(96, 87, 87);
 }
 
+/* Setting a background color for the body */
+body {
+  background-color: rgb(96, 87, 87);
+  font-family: Arial, sans-serif;
+}
+
+/* Styling the canvas */
 canvas {
   display: block;
   position: absolute;
   left: 30%;
   top: 10%;
-  outline: black 3px solid;
+  outline: 3px solid black;
 }
 
+/* Styling for buttons */
 button {
   display: inline-block;
   padding: 10px 20px;
@@ -28,6 +35,7 @@ button {
   transition: background-color 0.3s ease;
 }
 
+/* Styling for paragraphs */
 p {
   margin-top: 20px;
   margin-bottom: 10px;
@@ -35,11 +43,12 @@ p {
   font-weight: bolder;
 }
 
+/* Hover effect for buttons */
 button:hover {
   background-color: #2980b9;
 }
 
-/* Input Field Styles */
+/* Styling for input fields */
 input {
   width: 10%;
   padding: 10px;
@@ -49,8 +58,8 @@ input {
   border-radius: 5px;
 }
 
-/* Optional: Add focus styles for the input field */
-.input-field:focus {
+/* Focus styles for input fields */
+input:focus {
   outline: none;
   border: 2px solid #3498db;
 }

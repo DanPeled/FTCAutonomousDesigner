@@ -17,7 +17,7 @@ let path = [];
 let draggedWaypoint = -1;
 let isPaused = false;
 let speedFactor = 1.5;
-
+let controlPressed = false;
 function setup() {
   rotationAngle = 0;
   img = loadImage('field.webp');
@@ -228,15 +228,39 @@ function drawWaypoints() {
   for (let i = 0; i < waypoints.length; i++) {
     let x = (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
     let y = (-waypoints[i].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+
+    // Draw waypoint circle
     fill(0, 0, 255);
     ellipse(x, y, 20, 20);
 
+    // Draw waypoint index
     fill(0);
     textSize(12);
     textAlign(CENTER, CENTER);
     text(i, x, y);
+
+    // Draw arrow indicating direction
+    drawArrow(x + 30, y, radians(waypoints[i].angle));
   }
 }
+
+function drawArrow(x, y, angle) {
+  let arrowSize = 15; // Adjust this size as needed
+
+  let arrowTip = createVector(0, -arrowSize / 2);
+  let arrowBase1 = createVector(arrowTip.x - arrowSize / 4, arrowTip.y + arrowSize);
+  let arrowBase2 = createVector(arrowTip.x + arrowSize / 4, arrowTip.y + arrowSize);
+
+  push();
+  translate(x, y);
+  rotate(angle);
+
+  fill(255, 0, 0);
+  triangle(arrowTip.x, arrowTip.y, arrowBase1.x, arrowBase1.y, arrowBase2.x, arrowBase2.y);
+
+  pop();
+}
+
 function keyTyped() {
   if (key === 'z') {
     showImage = !showImage;
@@ -245,6 +269,9 @@ function keyTyped() {
   } else if (key === 'k') {
     isPaused = !isPaused;
   }
+}
+function keyPressed() {
+  controlPressed = keyCode == CONTROL;
 }
 function restart() {
   var wasPaused = isPaused;
