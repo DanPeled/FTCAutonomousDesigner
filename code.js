@@ -176,10 +176,10 @@ function mouseDragged() {
       // Undo the canvas transformations to get the mouse position in the original coordinate system
       let canvasMouse = createVector(mouseX, mouseY);
       let worldMouse = canvasToWorld(canvasMouse);
-      
+
       // Use dragOffset to adjust the waypoint position accurately
-      waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.2);
-      waypoints[draggedWaypoint].y = constrain(worldMouse.y, -2.5, 5.3);
+      waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.3);
+      waypoints[draggedWaypoint].y = constrain(worldMouse.y, -3.4, 5.3);
     }
   }
 }
@@ -188,7 +188,7 @@ function canvasToWorld(canvasVector) {
   let inverseRotation = -rotationAngle;
   let translatedX = canvasVector.x - width / 2;
   let translatedY = canvasVector.y - height / 2;
-  
+
   // Undo rotation
   let rotatedX = translatedX * cos(inverseRotation) - translatedY * sin(inverseRotation);
   let rotatedY = translatedX * sin(inverseRotation) + translatedY * cos(inverseRotation);
@@ -217,11 +217,11 @@ function drawPath() {
 
 function drawWaypoints() {
   for (let i = 0; i < waypoints.length; i++) {
-    let x =  (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
+    let x = (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
     let y = (-waypoints[i].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
     fill(0, 0, 255);
     ellipse(x, y, 20, 20);
-    
+
     fill(0);
     textSize(12);
     textAlign(CENTER, CENTER);
