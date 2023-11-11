@@ -1,4 +1,4 @@
-let gridSize = 6;
+const gridSize = 6;
 let squareSize;
 let robot;
 let rotationInput;
@@ -16,12 +16,17 @@ let tempWaypoints;
 let path = [];
 let draggedWaypoint = -1;
 let isPaused = false;
-let speedFactor = 1.5;
+const speedFactor = 1.5;
+const tolerance = 0.04;
 let controlPressed = false;
+let seasonSelect;
+imagePaths = { "centerstage": '../../Images/centerstage.webp' , 'powerplay' : '../../Images/powerplay.png', 'freightfrenzy' : "../../Images/freightfrenzy.png", 'skystone': "../../Images/skystone.jpg", "ultimategoal" : "../../Images/ultimategoal.jpg"};
 function setup() {
+  seasonSelect = document.getElementById('season-select');
+  seasonSelect.addEventListener('change', () => getImage);
   rotationAngle = 0;
-  img = loadImage('field.webp');
-  createCanvas(500, 500);
+  createCanvas(550, 550);
+  getImage();
   squareSize = width / gridSize;
   robot = new Robot(tile + 1, 0, 40);
   waypoints = [
@@ -33,7 +38,10 @@ function setup() {
   tempWaypoints = Array.from(waypoints);
   initHTML();
 }
-
+function getImage() {
+  seasonSelect = document.getElementById('season-select');
+  img = loadImage(imagePaths[seasonSelect.value]);
+}
 function initHTML() {
   var canvas = document.querySelector('canvas');
   canvas.addEventListener('contextmenu', function (e) {
@@ -77,7 +85,7 @@ function draw() {
   background(220, 255);
   doPath();
 
-  img.resize(500, 500);
+  img.resize(550, 550);
   push();
   translate(width / 2, height / 2);
   rotate(-HALF_PI);
@@ -130,7 +138,7 @@ function doPath() {
 
     // Check if the robot is close enough to the waypoint
     let distance = dist(robot.x, robot.y, point.x, point.y);
-    if (distance < 0.03) {
+    if (distance < tolerance) {
       robot.setX(point.x);
       robot.setY(point.y);
       rotationAngle = radians(point.angle);

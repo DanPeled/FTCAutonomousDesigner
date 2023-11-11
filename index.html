@@ -7,13 +7,20 @@
 
   <title>FTC Autonomous Designer</title>
 
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="Scripts/CSS/style.css">
   <script src="libraries/p5.min.js"></script>
   <script src="libraries/p5.sound.min.js"></script>
 </head>
 
 <body>
-  <script src="code.js"></script>
+  <select id="season-select" onchange="getImage()">
+    <option value="centerstage">CENTERSTAGE</option>
+    <option value="powerplay">POWERPLAY</option>
+    <option value="freightfrenzy">FREIGHT-FRENZY</option>
+    <option value="ultimategoal">ULTIMATE-GOAL</option>
+    <option value="skystone">SKYSTONE</option>
+  </select>
+  <script src="Scripts/JS/code.js"></script>
 </body>
 
 </html>
