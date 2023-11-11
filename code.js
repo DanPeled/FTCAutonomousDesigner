@@ -174,12 +174,12 @@ function mouseDragged() {
       updateRotationInput();
     } else {
       // Undo the canvas transformations to get the mouse position in the original coordinate system
-      let canvasMouse = createVector(mouseX, mouseY);
+      let canvasMouse = createVector(mouseX - 100, mouseY + 200);
       let worldMouse = canvasToWorld(canvasMouse);
-
+      console.log(worldMouse.y)
       // Use dragOffset to adjust the waypoint position accurately
       waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.3);
-      waypoints[draggedWaypoint].y = constrain(worldMouse.y, -3.4, 5.3);
+      waypoints[draggedWaypoint].y = constrain(worldMouse.y, -0.38, 5.3);
     }
   }
 }
