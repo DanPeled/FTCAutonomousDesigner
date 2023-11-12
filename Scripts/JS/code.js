@@ -50,9 +50,9 @@ function initHTML() {
   rotationInput.attribute("placeholder", "Enter rotation angle in degrees");
   rotationInput.changed(updateRotation);
 
-  convertButton = createButton("Convert");
-  convertButton.position(10, height + 40);
-  convertButton.mousePressed(convert);
+  // convertButton = createButton("Convert");
+  // convertButton.position(10, height + 40);
+  // convertButton.mousePressed(convert);
   createP('paused').position(width - 30, 560).id("pausedText");
   updateWaypointInputFields();
 }
