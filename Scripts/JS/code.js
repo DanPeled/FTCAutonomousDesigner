@@ -22,9 +22,6 @@ let controlPressed = false;
 let seasonSelect;
 imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
 function setup() {
-  Object.values(imagePaths).forEach((path, index) => {
-    loadImage(path);
-  });
   seasonSelect = document.getElementById('season-select');
   seasonSelect.addEventListener('change', () => getImage);
   rotationAngle = 0;
@@ -230,13 +227,29 @@ function mouseReleased() {
 }
 
 function drawPath() {
-  path.forEach((pos, index) => {
-    stroke(140, 130);
-    strokeWeight(1);
-    fill(140, 130);
-    ellipse(pos.x, pos.y, 10, 10);
-    stroke(0);
+  waypoints.forEach((pos, index) => {
+    if (index > 0) {
+      let x = (waypoints[index].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
+      let y = (-waypoints[index].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+      let prevx = (waypoints[index - 1].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
+      let prevy = (-waypoints[index - 1].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+      strokeWeight(4);
+      stroke(255);
+      line(x, y, prevx, prevy);
+      stroke(0);
+      strokeWeight(1);
+    }
   });
+  // if (path != undefined)
+  //   path.forEach((pos, index) => {
+  //     if (index != 0) {
+  //       stroke(0, 255);
+  //       strokeWeight(3);
+  //       line(pos.x, pos.y, path[index - 1].x, path[index - 1].y);
+  //       stroke(0);
+  //       strokeWeight(1);
+  //     }
+  //   });
 }
 
 function drawWaypoints() {
