@@ -213,20 +213,16 @@ function mouseDragged() {
 }
 // Helper function to convert canvas coordinates to world coordinates
 function canvasToWorld(canvasVector) {
-  let inverseRotation = -rotationAngle;
   let translatedX = canvasVector.x - width / 2;
   let translatedY = canvasVector.y - height / 2;
 
-  // Undo rotation
-  let rotatedX = translatedX * cos(inverseRotation) - translatedY * sin(inverseRotation);
-  let rotatedY = translatedX * sin(inverseRotation) + translatedY * cos(inverseRotation);
-
   // Undo translation
-  let worldX = rotatedX / squareSize + 3 - 0.9;
-  let worldY = -rotatedY / squareSize + 5;
+  let worldX = translatedX / squareSize + 3 - 0.9;
+  let worldY = -translatedY / squareSize + 5;
 
   return createVector(worldX, worldY);
 }
+
 
 function mouseReleased() {
   isDragging = false;
