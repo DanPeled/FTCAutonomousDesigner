@@ -55,6 +55,7 @@ function initHTML() {
   canvas.addEventListener('contextmenu', function (e) {
     e.preventDefault();
   });
+  canvas.setAttribute('alt', 'FIELD IMAGE GOES HERE')
   createP('Position (X Y):').position(10, height - 110);
   posInput = createInput(`${robot.x} ${robot.y}`);
   posInput.position(10, height - 60);
