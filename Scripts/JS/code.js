@@ -1,26 +1,12 @@
 const gridSize = 6;
-let squareSize;
-let robot;
-let rotationInput;
-let posInput;
-let convertButton;
-let rotationAngle = 0;
-let isDragging = false;
-let dragOffset;
-let tile = 0.9;
-let field;
-let waypoints;
-let img;
-let showImage = true;
-let tempWaypoints;
-let path = [];
-let draggedWaypoint = -1;
-let isPaused = false;
 const speedFactor = 1.5;
 const tolerance = 0.04;
-let controlPressed = false;
-let seasonSelect;
-imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
+let squareSize, robot, rotationInput, posInput, convertButton, rotationAngle = 0;
+let isDragging = false, dragOffset, tile = 0.9, halfTile = 0.4404 / 2, field, waypoints;
+let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false;
+let controlPressed = false, seasonSelect;
+const minX = -3.5, maxX = 2.3, minY = -0.176, maxY = 5.6;
+const imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
 function setup() {
   seasonSelect = document.getElementById('season-select');
   seasonSelect.addEventListener('change', () => getImage);
@@ -28,12 +14,12 @@ function setup() {
   createCanvas(550, 550);
   getImage();
   squareSize = width / gridSize;
-  robot = new Robot(tile + 1, 0, 40);
+  robot = new Robot(tile, 0, 40);
   waypoints = [
-    new Waypoint(tile + 1, 0, 0),
-    new Waypoint(tile + 1, 2.5, 90),
-    new Waypoint(tile - 1, 2.5, 0),
-    new Waypoint(tile - 2.5, 1, 0)
+    new Waypoint(tile, halfTile, 0),
+    new Waypoint(tile, 2.5, 90),
+    new Waypoint(tile - 2, 2.5, 0),
+    new Waypoint(tile - 3.5, 1 + halfTile, 0)
   ];
   tempWaypoints = Array.from(waypoints);
   initHTML();
@@ -153,7 +139,12 @@ function doPath() {
     }
   }
 }
-
+function calculateWaypointX(x) {
+  return (x - 3 - 0.4 + 2.5 + 1) * squareSize + width / 2 + squareSize / 2;
+}
+function calculateWaypointY(y) {
+  return (-y - 3 + 5 + (0.4404 / 2)) * squareSize + height / 2 + squareSize / 2;
+}
 function mousePressed() {
   isDragging = false;
   draggedWaypoint = -1;
@@ -162,8 +153,8 @@ function mousePressed() {
     waypoints.push(new Waypoint(tile + 0.5, 0.5, 0));
   } else if (mouseButton === RIGHT) { // Check for right mouse button click
     for (let i = waypoints.length - 1; i >= 0; i--) {
-      let waypointX = (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-      let waypointY = (-waypoints[i].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+      let waypointX = calculateWaypointX(waypoints[i].x)
+      let waypointY = calculateWaypointY(waypoints[i].y);
       let d = dist(mouseX, mouseY, waypointX, waypointY);
       if (d < 10) {
         waypoints.splice(i, 1); // Remove the waypoint at index i
@@ -175,8 +166,8 @@ function mousePressed() {
     dragOffset = createVector(mouseX - robot.x, mouseY - robot.y)
   } else {
     for (let i = 0; i < waypoints.length; i++) {
-      let waypointX = (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-      let waypointY = (-waypoints[i].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+      let waypointX = calculateWaypointX(waypoints[i].x)
+      let waypointY = calculateWaypointY(waypoints[i].y);
       let d = dist(mouseX, mouseY, waypointX, waypointY);
       if (d < 10) {
         isDragging = true;
@@ -187,7 +178,6 @@ function mousePressed() {
     }
   }
 }
-
 
 function mouseDragged() {
   if (isDragging) {
@@ -201,11 +191,11 @@ function mouseDragged() {
       updateRotationInput();
     } else {
       // Undo the canvas transformations to get the mouse position in the original coordinate system
-      let canvasMouse = createVector(mouseX - 100, mouseY + 200);
+      let canvasMouse = createVector(mouseX - 250, mouseY + 200);
       let worldMouse = canvasToWorld(canvasMouse);
       // Use dragOffset to adjust the waypoint position accurately
-      waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.3);
-      waypoints[draggedWaypoint].y = constrain(worldMouse.y, -0.38, 5.3);
+      waypoints[draggedWaypoint].x = constrain(worldMouse.x, minX, maxX);
+      waypoints[draggedWaypoint].y = constrain(worldMouse.y, minY, maxY);
       updateWaypointInputFields();
     }
   }
@@ -229,35 +219,25 @@ function mouseReleased() {
 }
 
 function drawPath() {
-  waypoints.forEach((pos, index) => {
-    if (index > 0) {
-      let x = (waypoints[index].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-      let y = (-waypoints[index].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
-      let prevx = (waypoints[index - 1].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-      let prevy = (-waypoints[index - 1].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+  for (let i = 0; i < waypoints.length; i++) {
+    if (i > 0) {
+      let x = calculateWaypointX(waypoints[i].x);
+      let y = calculateWaypointY(waypoints[i].y);
+      let prevx = calculateWaypointX(waypoints[i - 1].x);
+      let prevy = calculateWaypointY(waypoints[i - 1].y);
+
       strokeWeight(4);
       stroke(255);
       line(x, y, prevx, prevy);
       stroke(0);
       strokeWeight(1);
     }
-  });
-  // if (path != undefined)
-  //   path.forEach((pos, index) => {
-  //     if (index != 0) {
-  //       stroke(0, 255);
-  //       strokeWeight(3);
-  //       line(pos.x, pos.y, path[index - 1].x, path[index - 1].y);
-  //       stroke(0);
-  //       strokeWeight(1);
-  //     }
-  //   });
+  }
 }
-
 function drawWaypoints() {
   for (let i = 0; i < waypoints.length; i++) {
-    let x = (waypoints[i].x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-    let y = (-waypoints[i].y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+    let x = calculateWaypointX(waypoints[i].x);
+    let y = calculateWaypointY(waypoints[i].y);
 
     // Draw waypoint circle
     fill(0, 0, 255);
@@ -354,9 +334,8 @@ class Robot {
     path.push(pos);
   }
   getPos() {
-    this.renderX =
-      (this.x - 3 - 0.4 + 2.5) * squareSize + width / 2 + squareSize / 2;
-    this.renderY = (-this.y - 3 + 5) * squareSize + height / 2 + squareSize / 2;
+    this.renderX = calculateWaypointX(this.x);
+    this.renderY = calculateWaypointY(this.y);
   }
 
   checkClick() {
