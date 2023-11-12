@@ -20,7 +20,7 @@ const speedFactor = 1.5;
 const tolerance = 0.04;
 let controlPressed = false;
 let seasonSelect;
-imagePaths = { "centerstage": '../../Images/centerstage.webp', 'powerplay': '../../Images/powerplay.png', 'freightfrenzy': "../../Images/freightfrenzy.png", 'skystone': "../../Images/skystone.jpg", "ultimategoal": "../../Images/ultimategoal.jpg" };
+imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
 function setup() {
   Object.values(imagePaths).forEach((path, index) => {
     loadImage(path);
