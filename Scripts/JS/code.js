@@ -68,6 +68,7 @@ function initHTML() {
   convertButton.position(10, height + 40);
   convertButton.mousePressed(convert);
   createP('paused').position(width - 30, 560).id("pausedText");
+  updateWaypointInputFields();
 }
 
 function updatePos() {
@@ -205,6 +206,7 @@ function mouseDragged() {
       // Use dragOffset to adjust the waypoint position accurately
       waypoints[draggedWaypoint].x = constrain(worldMouse.x, -2.5, 3.3);
       waypoints[draggedWaypoint].y = constrain(worldMouse.y, -0.38, 5.3);
+      updateWaypointInputFields();
     }
   }
 }
@@ -413,4 +415,17 @@ class Waypoint {
     this.y = y;
     this.angle = angle;
   }
+}
+function updateWaypointInputFields() {
+  let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
+  document.getElementById("waypoint-edit-waypointx").value = waypoints[index].x;
+  document.getElementById("waypoint-edit-waypointy").value = waypoints[index].y;
+  document.getElementById("waypoint-edit-waypointangle").value = waypoints[index].angle;
+}
+function updateWayPointValues() {
+  let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
+  waypoints[index].x = constrain(document.getElementById("waypoint-edit-waypointx").value, -2.5, 3.3);
+  waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, -0.38, 5.3);
+  waypoints[index].angle = document.getElementById("waypoint-edit-waypointangle").value;
+  updateWaypointInputFields();
 }

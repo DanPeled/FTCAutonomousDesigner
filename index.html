@@ -24,6 +24,21 @@
     <option value="ultimategoal">ULTIMATE-GOAL</option>
     <option value="skystone">SKYSTONE</option>
   </select>
+  <div id="waypoint-edit">
+    <p id="waypoint-edit-title">EDIT WAYPOINT VALUES: </p>
+    <label for="waypoint-edit-waypointnum">  Waypoint Index: </label>
+    <input inputmode="numeric" oninput="this.value = this.value.replace(/\D+/g, '')" type="number"
+      id="waypoint-edit-waypointnum" value="0" onchange="updateWaypointInputFields()"/></br>
+    <label for="waypoint-edit-waypointx">  X: </label>
+    <input inputmode="numeric" type="number"
+      id="waypoint-edit-waypointx" onchange="updateWayPointValues()"/> </br>
+    <label for="waypoint-edit-waypointy">  Y: </label>
+    <input inputmode="numeric" type="number"
+      id="waypoint-edit-waypointy" onchange="updateWayPointValues()"></br>
+    <label for="waypoint-edit-waypointangle">  Angle: </label>
+    <input inputmode="numeric" type="number"
+      id="waypoint-edit-waypointangle" onchange="updateWayPointValues()"/>
+  </div>
   <script src="Scripts/JS/code.js"></script>
 </body>
 
