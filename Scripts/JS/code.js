@@ -43,7 +43,12 @@ function setup() {
 }
 function getImage() {
   seasonSelect = document.getElementById('season-select');
-  img = loadImage(imagePaths[seasonSelect.value]);
+  try {
+    img = loadImage(imagePaths[seasonSelect.value]);
+  }
+  catch {
+    img = loadImage(imagePaths['centerstage'])
+  }
 }
 function initHTML() {
   var canvas = document.querySelector('canvas');
