@@ -1,13 +1,14 @@
 const gridSize = 6;
 const speedFactor = 1.5;
 const tolerance = 0.04;
-let squareSize, robot, rotationInput, posInput, convertButton, rotationAngle = 0;
+let squareSize, robot, rotationInput, posInput, downloadButton, uploadButton, rotationAngle = 0;
 let isDragging = false, dragOffset, tile = 0.9, halfTile = 0.4404 / 2, field, waypoints;
-let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false;
+let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false, container;
 let controlPressed = false, seasonSelect;
 const minX = -3.5, maxX = 2.3, minY = -0.176, maxY = 5.6;
 const imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
 function setup() {
+  posInput = document.getElementById('posInput');
   seasonSelect = document.getElementById('season-select');
   seasonSelect.addEventListener('change', () => getImage);
   rotationAngle = 0;
@@ -39,40 +40,81 @@ function initHTML() {
     e.preventDefault();
   });
   canvas.setAttribute('alt', 'FIELD IMAGE GOES HERE')
-  createP('Position (X Y):').position(10, height - 110);
-  posInput = createInput(`${robot.x} ${robot.y}`);
-  posInput.position(10, height - 60);
-  posInput.changed(updatePos);
-
-  createP('Rotation Angle:').position(10, height - 40);
-  rotationInput = createInput(rotationAngle);
-  rotationInput.position(10, height + 5);
-  rotationInput.attribute("placeholder", "Enter rotation angle in degrees");
-  rotationInput.changed(updateRotation);
-
-  // convertButton = createButton("Convert");
-  // convertButton.position(10, height + 40);
-  // convertButton.mousePressed(convert);
-  createP('paused').position(width - 30, 560).id("pausedText");
   updateWaypointInputFields();
 }
 
 function updatePos() {
-  let stringedPos = posInput.value();
-  let arrayedPos = stringedPos.split(" ");
-  arrayedPos.forEach((item, index) => {
-    arrayedPos[index] = parseFloat(item);
+  let posInput = document.getElementById('posInput');
+  let values = posInput.value.split(' ');
+  robot.setX(parseFloat(values[0]));
+  robot.setY(parseFloat(values[1]));
+}
+
+function downloadPath() {
+  // Convert JSON to a string
+  const jsonString = JSON.stringify(waypoints, null, 2);
+
+  // Create a Blob with the JSON content
+  const blob = new Blob([jsonString], { type: "application/json" });
+
+  // Create a download link
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "pathname.path";
+
+  // Append the link to the body
+  document.body.appendChild(a);
+
+  // Trigger a click on the link to start the download
+  a.click();
+
+  // Remove the link from the DOM
+  document.body.removeChild(a);
+}
+function loadPath() {
+  // Get the file input element
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.style.display = "none";
+  // Listen for the change event on the file input
+  fileInput.addEventListener('change', function () {
+    // Check if a file is selected
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+
+      // Create a FileReader
+      const reader = new FileReader();
+
+      // Define a callback function to handle the file reading
+      reader.onload = function (e) {
+        try {
+          // Parse the JSON content
+          const jsonData = JSON.parse(e.target.result);
+
+          // Use the jsonData as needed
+          waypoints = jsonData;
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+
+        // Remove the file input after processing
+        document.body.removeChild(fileInput);
+      };
+
+      // Read the file as text
+      reader.readAsText(file);
+    } else {
+      alert('Please select a file.');
+
+      // Remove the file input if no file is selected
+      document.body.removeChild(fileInput);
+    }
   });
-  robot.setX(arrayedPos[0]);
-  robot.setY(arrayedPos[1]);
-}
 
-function convert() {
-  let x = robot.x;
-  let y = robot.y;
-  console.log(x, y, parseFloat(rotationInput.value()));
+  // Trigger a click on the file input to open the file dialog
+  document.body.appendChild(fileInput);
+  fileInput.click();
 }
-
 function draw() {
   document.getElementById("pausedText").innerText = isPaused ? "PAUSED" : "";
   background(220, 255);
@@ -116,13 +158,11 @@ function doPath() {
   if (!isPaused && tempWaypoints.length > 0) {
     let point = tempWaypoints[0];
     let d = 0.045 * speedFactor;
-    if (rotationAngle > radians(point.angle)) {
-      rotationAngle -= 0.04;
-    }
-    if (rotationAngle < radians(point.angle)) {
-      rotationAngle += 0.04;
-    }
+
+    // Gradually rotate towards the target angle
+    rotationAngle = lerp(rotationAngle, radians(point.angle), 0.04);
     updateRotationInput();
+
     // Move the robot
     let m = createVector(point.x - robot.x, point.y - robot.y);
     m.normalize();
@@ -136,6 +176,7 @@ function doPath() {
       robot.setY(point.y);
       rotationAngle = radians(point.angle);
       tempWaypoints.shift();
+      updateRotationInput();
     }
   }
 }
@@ -298,15 +339,13 @@ function restart() {
 }
 
 function updateRotation() {
-  let inputAngle = parseFloat(rotationInput.value());
-  if (!isNaN(inputAngle)) {
-    rotationAngle = radians(inputAngle);
-  }
+  let rotationInput = document.getElementById('rotationInput');
+  rotationAngle = radians(parseFloat(rotationInput.value));
 }
 
 function updateRotationInput() {
-  let newRotationAngleDegrees = degrees(rotationAngle);
-  rotationInput.value(newRotationAngleDegrees.toFixed(2));
+  let rotationInput = document.getElementById('rotationInput');
+  rotationInput.value = parseFloat(degrees(rotationAngle).toFixed(2));
 }
 
 let wheelSize;
@@ -323,13 +362,13 @@ class Robot {
   }
   setX(newX) {
     this.x = newX;
-    posInput.value(`${this.x.toFixed(2)} ${this.y.toFixed(2)}`);
+    posInput.value = (`${this.x.toFixed(2)} ${this.y.toFixed(2)}`);
     var pos = createVector(this.renderX, this.renderY);
     path.push(pos);
   }
   setY(newY) {
     this.y = newY;
-    posInput.value(`${this.x.toFixed(2)} ${this.y.toFixed(2)}`)
+    posInput.value = (`${this.x.toFixed(2)} ${this.y.toFixed(2)}`)
     var pos = createVector(this.renderX, this.renderY);
     path.push(pos);
   }
