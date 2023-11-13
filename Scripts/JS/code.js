@@ -191,7 +191,10 @@ function mousePressed() {
   draggedWaypoint = -1;
 
   if (mouseButton === CENTER) {
-    waypoints.push(new Waypoint(tile + 0.5, 0.5, 0));
+    let canvasMouse = createVector(mouseX - 250, mouseY + 200);
+    let worldMouse = canvasToWorld(canvasMouse);
+    
+    waypoints.push(new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0));
   } else if (mouseButton === RIGHT) { // Check for right mouse button click
     for (let i = waypoints.length - 1; i >= 0; i--) {
       let waypointX = calculateWaypointX(waypoints[i].x)
