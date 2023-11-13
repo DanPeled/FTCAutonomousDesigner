@@ -442,8 +442,8 @@ function updateWaypointInputFields() {
 }
 function updateWayPointValues() {
   let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
-  waypoints[index].x = constrain(document.getElementById("waypoint-edit-waypointx").value, -2.5, 3.3);
-  waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, -0.38, 5.3);
+  waypoints[index].x = constrain(document.getElementById("waypoint-edit-waypointx").value, minX, maxX);
+  waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, minY, maxY);
   waypoints[index].angle = document.getElementById("waypoint-edit-waypointangle").value;
   updateWaypointInputFields();
 }
