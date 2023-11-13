@@ -15,7 +15,7 @@ body {
 canvas {
   display: block;
   position: absolute;
-  left: 30%;
+  left: 20%;
   top: 10%;
   outline: 3px solid black;
 }
@@ -50,15 +50,17 @@ button:hover {
 }
 
 /* Styling for input fields */
-input {
-  width: 10%;
+input,
+textarea {
   padding: 10px;
   margin-bottom: 40px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
+input{
+  width: 10%;
+}
 /* Focus styles for input fields */
 input:focus {
   outline: none;
@@ -67,6 +69,12 @@ input:focus {
 
 #pausedText {
   font-size: 130%;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  height: 30%;
 }
 
 select {
@@ -87,12 +95,13 @@ select {
 
 #waypoint-edit {
   position: absolute;
-  left: 50%;
-  transform: translateX(100%);
-  top: 110px;
+  left: 34%;
+  transform: translateX(70%);
+  top: 90px;
   border: 4px solid black;
   background-color: #233540;
   border-radius: 3%;
+  width: 35%;
 }
 
 #waypoint-edit label {
@@ -140,7 +149,8 @@ select {
   border-radius: 10px;
   background-color: #233540;
 }
-#data-buttons{
+
+#data-buttons {
   max-width: 120px;
   overflow: hidden;
   padding: 10px;

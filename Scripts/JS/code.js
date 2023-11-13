@@ -6,7 +6,15 @@ let isDragging = false, dragOffset, tile = 0.9, halfTile = 0.4404 / 2, field, wa
 let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false, container;
 let controlPressed = false, seasonSelect;
 const minX = -3.5, maxX = 2.3, minY = -0.176, maxY = 5.6;
-const imagePaths = { "centerstage": 'Images/centerstage.webp', 'powerplay': 'Images/powerplay.png', 'freightfrenzy': "Images/freightfrenzy.png", 'skystone': "Images/skystone.jpg", "ultimategoal": "Images/ultimategoal.jpg" };
+let lastTime = 0;
+let delayTime = 0; // 60 frames delay (adjust as needed)
+const imagePaths = {
+  "centerstage": 'Images/centerstage.webp',
+  'powerplay': 'Images/powerplay.png',
+  'freightfrenzy': "Images/freightfrenzy.png",
+  'skystone': "Images/skystone.jpg",
+  "ultimategoal": "Images/ultimategoal.jpg"
+};
 function setup() {
   posInput = document.getElementById('posInput');
   seasonSelect = document.getElementById('season-select');
@@ -15,12 +23,12 @@ function setup() {
   createCanvas(550, 550);
   getImage();
   squareSize = width / gridSize;
-  robot = new Robot(tile, 0, 40);
+  robot = new Robot(tile, halfTile, 40);
   waypoints = [
-    new Waypoint(tile, halfTile, 0),
-    new Waypoint(tile, 2.5, 90),
-    new Waypoint(tile - 2, 2.5, 0),
-    new Waypoint(tile - 3.5, 1 + halfTile, 0)
+    new Waypoint(tile, halfTile, 0, "", 0),
+    new Waypoint(tile, 2.5, 90, "", 0),
+    new Waypoint(tile - 2, 2.5, 0, "", 0),
+    new Waypoint(tile - 3.5, 1 + halfTile, 0, "", 0)
   ];
   tempWaypoints = Array.from(waypoints);
   initHTML();
@@ -153,30 +161,34 @@ function drawGrid() {
     }
   }
 }
-
 function doPath() {
   if (!isPaused && tempWaypoints.length > 0) {
-    let point = tempWaypoints[0];
-    let d = 0.045 * speedFactor;
+    let currentTime = frameCount;
 
-    // Gradually rotate towards the target angle
-    rotationAngle = lerp(rotationAngle, radians(point.angle), 0.04);
-    updateRotationInput();
-
-    // Move the robot
-    let m = createVector(point.x - robot.x, point.y - robot.y);
-    m.normalize();
-    robot.setX(robot.x + m.x * d);
-    robot.setY(robot.y + m.y * d);
-
-    // Check if the robot is close enough to the waypoint
-    let distance = dist(robot.x, robot.y, point.x, point.y);
-    if (distance < tolerance) {
-      robot.setX(point.x);
-      robot.setY(point.y);
-      rotationAngle = radians(point.angle);
-      tempWaypoints.shift();
+    if (currentTime - lastTime > delayTime) {
+      let d = 0.045 * speedFactor;
+      let point = tempWaypoints[0];
+      // Gradually rotate towards the target angle
+      rotationAngle = lerp(rotationAngle, radians(point.angle), 0.04);
       updateRotationInput();
+
+      // Move the robot
+      let m = createVector(point.x - robot.x, point.y - robot.y);
+      m.normalize();
+      robot.setX(robot.x + m.x * d);
+      robot.setY(robot.y + m.y * d);
+
+      // Check if the robot is close enough to the waypoint
+      let distance = dist(robot.x, robot.y, point.x, point.y);
+      if (distance < tolerance) {
+        robot.setX(point.x);
+        robot.setY(point.y);
+        rotationAngle = radians(point.angle);
+        tempWaypoints.shift();
+        updateRotationInput();
+        lastTime = currentTime; // Update lastTime for the delay
+        delayTime = point.waitTime * 60;
+      }
     }
   }
 }
@@ -193,7 +205,7 @@ function mousePressed() {
   if (mouseButton === CENTER) {
     let canvasMouse = createVector(mouseX - 250, mouseY + 200);
     let worldMouse = canvasToWorld(canvasMouse);
-    
+
     waypoints.push(new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0));
   } else if (mouseButton === RIGHT) { // Check for right mouse button click
     for (let i = waypoints.length - 1; i >= 0; i--) {
@@ -361,7 +373,7 @@ class Robot {
     this.wheelSize = size * 0.2;
     this.wheelOffset = size * 0.4;
     this.getPos();
-    this.color = color(255, 0, 0);
+    this.color = color(2, 136, 2);
   }
   setX(newX) {
     this.x = newX;
@@ -431,10 +443,12 @@ class Robot {
 }
 
 class Waypoint {
-  constructor(x, y, angle) {
+  constructor(x, y, angle, description, waitTime) {
     this.x = x;
     this.y = y;
     this.angle = angle;
+    this.waitTime = waitTime;
+    this.description = description;
   }
 }
 function updateWaypointInputFields() {
@@ -442,11 +456,18 @@ function updateWaypointInputFields() {
   document.getElementById("waypoint-edit-waypointx").value = waypoints[index].x;
   document.getElementById("waypoint-edit-waypointy").value = waypoints[index].y;
   document.getElementById("waypoint-edit-waypointangle").value = waypoints[index].angle;
+  document.getElementById('waypoint-edit-description').value = waypoints[index].description;
 }
 function updateWayPointValues() {
   let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
   waypoints[index].x = constrain(document.getElementById("waypoint-edit-waypointx").value, minX, maxX);
   waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, minY, maxY);
   waypoints[index].angle = document.getElementById("waypoint-edit-waypointangle").value;
+  waypoints[index].description = document.getElementById('waypoint-edit-description').value;
   updateWaypointInputFields();
+}
+async function wait(sec) {
+  return new Promise(resolve => {
+    setTimeout(resolve, sec * 1000);
+  });
 }
