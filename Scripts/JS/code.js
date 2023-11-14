@@ -227,7 +227,7 @@ function drawGrid() {
 }
 function doPath() {
   let currentTime = frameCount;
-  if (tempWaypoints.length === 0) {
+  if (tempWaypoints.length === 0 && mediaRec && mediaRec.state == "recording") {
     let stopButton = document.querySelector("#stopRecording");
     stopButton.click();
   }
@@ -273,8 +273,9 @@ function mousePressed() {
     cursor('default');
     let canvasMouse = createVector(mouseX - 250, mouseY + 200);
     let worldMouse = canvasToWorld(canvasMouse);
-
-    waypoints.push(new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0));
+    let newWaypoint = new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0, "", 0);
+    waypoints.push(newWaypoint);
+    tempWaypoints.push(newWaypoint);
     cursor('default');
   } else if (mouseButton === RIGHT) { // Check for right mouse button click
     for (let i = waypoints.length - 1; i >= 0; i--) {
