@@ -1,6 +1,8 @@
 # FTC Autonomous Designer
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) ![GitHub language count](https://img.shields.io/github/languages/top/DanPeled/FTCAutonomousDesigner)
+---
 > This JavaScript code implements a robot path planner using the p5.js library. The application provides a user interface for planning and visualizing the movement of a robot on a grid-based field.
-
+---
 ## Key Components
 
 ### 1. Initialization
@@ -43,7 +45,7 @@
 ### 10. Restarting and Pausing
 
 - The `restart` function resets the robot's path, and the `isPaused` variable controls whether the path planning is paused or active.
-
+---
 ## Usage
 
 1. **Adding Waypoints:**
@@ -61,6 +63,7 @@
    - Press 'z' to toggle the field image visibility.
    - Press 'r' to restart the robot's path.
    - Press 'k' to pause or resume path planning.
-
+---
 ## Customization
 This code provides a foundation for a visual robot path planner, allowing users to experiment with different scenarios and field configurations.
+---
