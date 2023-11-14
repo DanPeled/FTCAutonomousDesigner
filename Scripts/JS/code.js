@@ -5,6 +5,7 @@ let squareSize, robot, rotationInput, posInput, downloadButton, uploadButton, ro
 let isDragging = false, dragOffset, tile = 0.9, halfTile = 0.4404 / 2, field, waypoints;
 let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false, container;
 let controlPressed = false, seasonSelect;
+let mediaRec;
 const minX = -3.5, maxX = 2.3, minY = -0.176, maxY = 5.6;
 let lastTime = 0;
 let delayTime = 0; // 60 frames delay (adjust as needed)
@@ -20,7 +21,7 @@ function setup() {
   seasonSelect = document.getElementById('season-select');
   seasonSelect.addEventListener('change', () => getImage);
   rotationAngle = 0;
-  createCanvas(550, 550);
+  createCanvas(550, 550).id("canvas");
   getImage();
   squareSize = width / gridSize;
   robot = new Robot(tile, halfTile, 40);
@@ -32,6 +33,56 @@ function setup() {
   ];
   tempWaypoints = Array.from(waypoints);
   initHTML();
+  initRecording();
+}
+function initRecording() {
+  let recButton = document.querySelector("#startRecording");
+  let stopButton = document.querySelector("#stopRecording");
+  let chunks = [];
+
+  recButton.addEventListener('click', async function () {
+    let video = document.querySelector("#videoPlayer");
+    video.style.display = "none";
+    // Assuming you have a canvas element with the id "canvas"
+    let canvas = document.querySelector("#canvas");
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+    // Capture the canvas as a stream
+    let canvasStream = canvas.captureStream();
+
+    // Create a MediaRecorder using the canvas stream
+    const mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9") ? "video/webm; codecs=vp9" : "video/webm";
+    mediaRec = new MediaRecorder(canvasStream, {
+      mimeType: mime
+    });
+
+    mediaRec.addEventListener('dataavailable', function (e) {
+      chunks.push(e.data);
+    });
+
+    mediaRec.addEventListener('stop', function () {
+      let blob = new Blob(chunks, {
+        type: chunks[0].type
+      });
+
+      let video = document.querySelector("#videoPlayer");
+      video.src = URL.createObjectURL(blob);
+    });
+
+    // Start recording
+    mediaRec.start();
+    restart();
+  });
+
+  stopButton.addEventListener('click', function () {
+    // Stop the recording
+    if (mediaRec && mediaRec.state === 'recording') {
+      mediaRec.stop();
+      let video = document.querySelector("#videoPlayer");
+      video.style.display = "block";
+      video.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  });
 }
 function getImage() {
   seasonSelect = document.getElementById('season-select');
@@ -79,11 +130,12 @@ function downloadPath() {
   // Remove the link from the DOM
   document.body.removeChild(a);
 }
-function loadPath() {
+function uploadPath() {
   // Get the file input element
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.style.display = "none";
+
   // Listen for the change event on the file input
   fileInput.addEventListener('change', function () {
     // Check if a file is selected
@@ -99,8 +151,16 @@ function loadPath() {
           // Parse the JSON content
           const jsonData = JSON.parse(e.target.result);
 
-          // Use the jsonData as needed
-          waypoints = jsonData;
+          // Convert JSON data into Waypoint instances
+          waypoints = jsonData.map(data => new Waypoint(
+            data.x || 0,
+            data.y || 0,
+            data.angle || 0,
+            data.description || '',
+            data.waitTime || 0
+          ));
+
+          // Use the waypoints as needed
         } catch (error) {
           console.error('Error parsing JSON:', error);
         }
@@ -124,7 +184,8 @@ function loadPath() {
   fileInput.click();
 }
 function draw() {
-  document.getElementById("pausedText").innerText = isPaused ? "PAUSED" : "";
+  document.getElementById("pausedText").innerHTML = isPaused ? "PAUSED" :
+    (mediaRec && mediaRec.state === 'recording' ? "<span style='color: red;'>RECORDING<span>" : "");
   background(220, 255);
   doPath();
 
@@ -162,9 +223,12 @@ function drawGrid() {
   }
 }
 function doPath() {
+  let currentTime = frameCount;
+  if (tempWaypoints.length === 0) {
+    let stopButton = document.querySelector("#stopRecording");
+    stopButton.click();
+  }
   if (!isPaused && tempWaypoints.length > 0) {
-    let currentTime = frameCount;
-
     if (currentTime - lastTime > delayTime) {
       let d = 0.045 * speedFactor;
       let point = tempWaypoints[0];
@@ -187,7 +251,7 @@ function doPath() {
         tempWaypoints.shift();
         updateRotationInput();
         lastTime = currentTime; // Update lastTime for the delay
-        delayTime = point.waitTime * 60;
+        delayTime = point.waitTime * frameRate();
       }
     }
   }
@@ -457,6 +521,7 @@ function updateWaypointInputFields() {
   document.getElementById("waypoint-edit-waypointy").value = waypoints[index].y;
   document.getElementById("waypoint-edit-waypointangle").value = waypoints[index].angle;
   document.getElementById('waypoint-edit-description').value = waypoints[index].description;
+  document.getElementById("waypoint-edit-waypointwaittime").value = waypoints[index].waitTime;
 }
 function updateWayPointValues() {
   let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
@@ -464,6 +529,7 @@ function updateWayPointValues() {
   waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, minY, maxY);
   waypoints[index].angle = document.getElementById("waypoint-edit-waypointangle").value;
   waypoints[index].description = document.getElementById('waypoint-edit-description').value;
+  waypoints[index].waitTime = document.getElementById('waypoint-edit-waypointwaittime').value;
   updateWaypointInputFields();
 }
 async function wait(sec) {

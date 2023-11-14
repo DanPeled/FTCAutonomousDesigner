@@ -15,42 +15,51 @@
 
 <body>
 
-  <a href="https://github.com/DanPeled/FTCAutonomousDesigner">
-    <button style="font-size:24px" id="link-button" alt><i class="fa fa-github"></i></button>
-  </a>
-  <select id="season-select" onchange="getImage()">
-    <option value="centerstage">CENTERSTAGE</option>
-    <option value="powerplay">POWERPLAY</option>
-    <option value="freightfrenzy">FREIGHT-FRENZY</option>
-    <option value="ultimategoal">ULTIMATE-GOAL</option>
-    <option value="skystone">SKYSTONE</option>
-  </select>
-  <div id="data-container">
-    <p>Position (X Y):</p>
-    <input type="text" id="posInput" value="0 0" onchange="updatePos()">
+  <div id="page-wrapper">
+    <a href="https://github.com/DanPeled/FTCAutonomousDesigner">
+      <button style="font-size:24px" id="link-button" alt><i class="fa fa-github"></i></button>
+    </a>
+    <select id="season-select" onchange="getImage()">
+      <option value="centerstage">CENTERSTAGE</option>
+      <option value="powerplay">POWERPLAY</option>
+      <option value="freightfrenzy">FREIGHT-FRENZY</option>
+      <option value="ultimategoal">ULTIMATE-GOAL</option>
+      <option value="skystone">SKYSTONE</option>
+    </select>
+    <div id="data-container">
+      <p>Position (X Y):</p>
+      <input type="text" id="posInput" value="0 0" onchange="updatePos()">
 
-    <p>Rotation Angle:</p>
-    <input type="number" id="rotationInput" placeholder="Enter rotation angle in degrees" onchange="updateRotation()">
-    <p id="pausedText">paused</p>
+      <p>Rotation Angle:</p>
+      <input type="number" id="rotationInput" placeholder="Enter rotation angle in degrees" onchange="updateRotation()">
+      <p id="pausedText">paused</p>
+    </div>
+    <div id="data-buttons">
+      <button onclick="downloadPath()">Download</button>
+      <button onclick="uploadPath()">Upload</button>
+      <button id="startRecording">Generate Video</button>
+    </div>
+    <div id="waypoint-edit">
+      <p id="waypoint-edit-title">EDIT WAYPOINT VALUES: </p>
+      <label for="waypoint-edit-waypointnum"> Waypoint Index: </label>
+      <input inputmode="numeric" oninput="this.value = this.value.replace(/\D+/g, '')" type="number"
+        id="waypoint-edit-waypointnum" value="0" onchange="updateWaypointInputFields()" /></br>
+      <label for="waypoint-edit-waypointx"> X: </label>
+      <input inputmode="numeric" type="number" id="waypoint-edit-waypointx" onchange="updateWayPointValues()" /> </br>
+      <label for="waypoint-edit-waypointy"> Y: </label>
+      <input inputmode="numeric" type="number" id="waypoint-edit-waypointy" onchange="updateWayPointValues()"></br>
+      <label for="waypoint-edit-waypointangle"> Angle: </label>
+      <input inputmode="numeric" type="number" id="waypoint-edit-waypointangle"
+        onchange="updateWayPointValues()" /></br>
+      <label for="waypoint-edit-waypointwaittime">Wait Time (s): </label>
+      <input inputmode="numeric" type="number" id="waypoint-edit-waypointwaittime"
+        onchange="updateWayPointValues()" /></br>
+      <label for="waypoint-edit-description">Description:</label>
+      <textarea id="waypoint-edit-description" onchange="updateWayPointValues()"></textarea>
+    </div>
+    <video id="videoPlayer" controls height="300px"></video>
   </div>
-  <div id="data-buttons">
-    <button onclick="downloadPath()">Download</button>
-    <button onclick="loadPath()">Upload</button>
-  </div>
-  <div id="waypoint-edit">
-    <p id="waypoint-edit-title">EDIT WAYPOINT VALUES: </p>
-    <label for="waypoint-edit-waypointnum"> Waypoint Index: </label>
-    <input inputmode="numeric" oninput="this.value = this.value.replace(/\D+/g, '')" type="number"
-      id="waypoint-edit-waypointnum" value="0" onchange="updateWaypointInputFields()" /></br>
-    <label for="waypoint-edit-waypointx"> X: </label>
-    <input inputmode="numeric" type="number" id="waypoint-edit-waypointx" onchange="updateWayPointValues()" /> </br>
-    <label for="waypoint-edit-waypointy"> Y: </label>
-    <input inputmode="numeric" type="number" id="waypoint-edit-waypointy" onchange="updateWayPointValues()"></br>
-    <label for="waypoint-edit-waypointangle"> Angle: </label>
-    <input inputmode="numeric" type="number" id="waypoint-edit-waypointangle" onchange="updateWayPointValues()" /></br>
-    <label for="waypoint-edit-description">Description:</label>
-    <textarea id="waypoint-edit-description" onchange="updateWayPointValues()"></textarea>
-  </div>
+  <button id="stopRecording" style="display: none;">Stop Recording</button>
   <script src="Scripts/JS/code.js"></script>
 </body>
 
