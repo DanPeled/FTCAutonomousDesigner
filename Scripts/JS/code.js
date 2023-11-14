@@ -34,6 +34,7 @@ function setup() {
   tempWaypoints = Array.from(waypoints);
   initHTML();
   initRecording();
+  document.styleSheets[0].insertRule('*:not([data-cursor="default"]) { cursor: auto !important; }', 0);
 }
 function initRecording() {
   let recButton = document.querySelector("#startRecording");
@@ -43,14 +44,11 @@ function initRecording() {
   recButton.addEventListener('click', async function () {
     let video = document.querySelector("#videoPlayer");
     video.style.display = "none";
-    // Assuming you have a canvas element with the id "canvas"
     let canvas = document.querySelector("#canvas");
     canvas.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-    // Capture the canvas as a stream
     let canvasStream = canvas.captureStream();
 
-    // Create a MediaRecorder using the canvas stream
     const mime = MediaRecorder.isTypeSupported("video/webm; codecs=vp9") ? "video/webm; codecs=vp9" : "video/webm";
     mediaRec = new MediaRecorder(canvasStream, {
       mimeType: mime
@@ -61,29 +59,34 @@ function initRecording() {
     });
 
     mediaRec.addEventListener('stop', function () {
-      let blob = new Blob(chunks, {
-        type: chunks[0].type
-      });
+      if (chunks.length > 0) {
+        let downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(new Blob(chunks, { type: chunks[0].type }));
+        downloadLink.download = 'recorded-video.webm';
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
 
-      let video = document.querySelector("#videoPlayer");
-      video.src = URL.createObjectURL(blob);
+        downloadLink.click();
+
+        document.body.removeChild(downloadLink);
+
+        chunks = [];
+      } else {
+        console.error('No recorded data to download.');
+      }
     });
 
-    // Start recording
     mediaRec.start();
     restart();
   });
 
   stopButton.addEventListener('click', function () {
-    // Stop the recording
     if (mediaRec && mediaRec.state === 'recording') {
       mediaRec.stop();
-      let video = document.querySelector("#videoPlayer");
-      video.style.display = "block";
-      video.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   });
 }
+
 function getImage() {
   seasonSelect = document.getElementById('season-select');
   try {
@@ -267,10 +270,12 @@ function mousePressed() {
   draggedWaypoint = -1;
 
   if (mouseButton === CENTER) {
+    cursor('default');
     let canvasMouse = createVector(mouseX - 250, mouseY + 200);
     let worldMouse = canvasToWorld(canvasMouse);
 
     waypoints.push(new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0));
+    cursor('default');
   } else if (mouseButton === RIGHT) { // Check for right mouse button click
     for (let i = waypoints.length - 1; i >= 0; i--) {
       let waypointX = calculateWaypointX(waypoints[i].x)

@@ -1,11 +1,10 @@
-/* Resetting default margin and padding */
 html,
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
-/* Setting a background color for the body */
 body {
   background-color: rgb(96, 87, 87);
   font-family: Arial, sans-serif;
@@ -16,10 +15,8 @@ body {
   width: 100%;
   height: 0;
   padding-bottom: 60%;
-  /* Adjust the padding-bottom to set the desired aspect ratio */
 }
 
-/* Styling the canvas */
 canvas {
   display: block;
   position: absolute;
@@ -27,8 +24,9 @@ canvas {
   top: 10%;
   outline: 3px solid black;
 }
-
-/* Styling for buttons */
+canvas:hover {
+  cursor: default !important;
+}
 button {
   display: inline-block;
   padding: 10px 20px;
@@ -44,20 +42,18 @@ button {
   transition: background-color 0.3s ease;
 }
 
-/* Styling for paragraphs */
+button:hover {
+  background-color: #2980b9;
+}
+
 p {
   margin-top: 20px;
+  margin-right: 10px;
   margin-bottom: 10px;
   color: white;
   font-weight: bolder;
 }
 
-/* Hover effect for buttons */
-button:hover {
-  background-color: #2980b9;
-}
-
-/* Styling for input fields */
 input,
 textarea {
   padding: 10px;
@@ -68,10 +64,9 @@ textarea {
 }
 
 input {
-  width: 10%;
+  width: 150px;
 }
 
-/* Focus styles for input fields */
 input:focus {
   outline: none;
   border: 2px solid #3498db;
@@ -106,43 +101,33 @@ select {
 
 #waypoint-edit {
   position: absolute;
-  left: 34%;
+  left: 43%;
   transform: translateX(70%);
   top: 60px;
   border: 4px solid black;
   background-color: #233540;
   border-radius: 3%;
-  width: 35%;
+  width: 330px;
+  padding: 20px;
 }
 
 #waypoint-edit label {
   color: white;
   font-weight: bold;
-  -webkit-user-select: none;
-  /* Safari */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE10+/Edge */
   user-select: none;
-  /* Standard */
+  margin-bottom: 8px;
 }
 
 #waypoint-edit input {
-  width: 70%;
+  width: calc(100% - 20px);
+  margin-bottom: 15px;
 }
 
 #waypoint-edit-title {
   position: relative;
-  top: -45px;
-  -webkit-user-select: none;
-  /* Safari */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE10+/Edge */
+  top: -60px;
   user-select: none;
-  /* Standard */
+  margin-bottom: -20px;
 }
 
 #data-container input {
@@ -161,11 +146,11 @@ select {
   background-color: #233540;
 }
 
-#data-buttons {
+#action-buttons {
   max-width: 120px;
   overflow: hidden;
   padding: 10px;
-  margin-top: 50px;
+  margin-top: 10px;
   margin-left: 50px;
   border: 3px solid #ccc;
   border-radius: 10px;

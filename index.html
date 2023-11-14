@@ -34,7 +34,7 @@
       <input type="number" id="rotationInput" placeholder="Enter rotation angle in degrees" onchange="updateRotation()">
       <p id="pausedText">paused</p>
     </div>
-    <div id="data-buttons">
+    <div id="action-buttons">
       <button onclick="downloadPath()">Download</button>
       <button onclick="uploadPath()">Upload</button>
       <button id="startRecording">Generate Video</button>
@@ -46,7 +46,7 @@
         id="waypoint-edit-waypointnum" value="0" onchange="updateWaypointInputFields()" /></br>
       <label for="waypoint-edit-waypointx"> X: </label>
       <input inputmode="numeric" type="number" id="waypoint-edit-waypointx" onchange="updateWayPointValues()" /> </br>
-      <label for="waypoint-edit-waypointy"> Y: </label>
+      <label for="waypoint-edit-waypointy"> Y: </label></br>
       <input inputmode="numeric" type="number" id="waypoint-edit-waypointy" onchange="updateWayPointValues()"></br>
       <label for="waypoint-edit-waypointangle"> Angle: </label>
       <input inputmode="numeric" type="number" id="waypoint-edit-waypointangle"
