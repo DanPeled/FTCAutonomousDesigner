@@ -1,4 +1,5 @@
 # FTC Autonomous Designer
+[![GitHub stats](https://github-readme-stats.vercel.app/api?username=DanPeled)](https://github.com/anuraghazra/github-readme-stats)
 > This JavaScript code implements a robot path planner using the p5.js library. The application provides a user interface for planning and visualizing the movement of a robot on a grid-based field.
 
 ## Key Components
