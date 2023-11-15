@@ -1,14 +1,17 @@
-const gridSize = 6;
-const speedFactor = 1.5;
-const tolerance = 0.04;
 let squareSize, robot, rotationInput, posInput, downloadButton, uploadButton, rotationAngle = 0;
-let isDragging = false, dragOffset, tile = 0.9, halfTile = 0.4404 / 2, field, waypoints;
-let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false, container;
+let isDragging = false, dragOffset, field, waypoints;
+let img, showImage = true, tempWaypoints, path = [], draggedWaypoint = -1, isPaused = false;
 let controlPressed = false, seasonSelect;
 let mediaRec;
-const minX = -3.5, maxX = 2.3, minY = -0.176, maxY = 5.6;
 let lastTime = 0;
-let delayTime = 0; // 60 frames delay (adjust as needed)
+let delayTime = 0;
+let fieldsActive = false;
+let waypointWaitTimeField = document.getElementById('waypoint-edit-waypointwaittime');
+let waypointAngleField = document.getElementById('waypoint-edit-waypointangle');
+let waypointXField = document.getElementById('waypoint-edit-waypointx');
+let waypointYField = document.getElementById('waypoint-edit-waypointy');
+let waypointDescriptionField = document.getElementById('waypoint-edit-description');
+let waypointIndexField = document.getElementById('waypoint-edit-waypointnum');
 const imagePaths = {
   "centerstage": 'Images/centerstage.webp',
   'powerplay': 'Images/powerplay.png',
@@ -23,13 +26,13 @@ function setup() {
   rotationAngle = 0;
   createCanvas(550, 550).id("canvas");
   getImage();
-  squareSize = width / gridSize;
-  robot = new Robot(tile, halfTile, 40);
+  squareSize = width / FieldDataConfig.gridSize;
+  robot = new Robot(FieldDataConfig.tile, FieldDataConfig.halfTile, 40, 0.04);
   waypoints = [
-    new Waypoint(tile, halfTile, 0, "", 0),
-    new Waypoint(tile, 2.5, 90, "", 0),
-    new Waypoint(tile - 2, 2.5, 0, "", 0),
-    new Waypoint(tile - 3.5, 1 + halfTile, 0, "", 0)
+    new Waypoint(FieldDataConfig.tile, FieldDataConfig.halfTile, 0, "", 0),
+    new Waypoint(FieldDataConfig.tile, 2.5, 90, "", 0),
+    new Waypoint(FieldDataConfig.tile - 2, 2.5, 0, "", 0),
+    new Waypoint(FieldDataConfig.tile - 3.5, 1 + FieldDataConfig.halfTile, 0, "", 0)
   ];
   tempWaypoints = Array.from(waypoints);
   initHTML();
@@ -44,7 +47,7 @@ function initRecording() {
   recButton.addEventListener('click', async function () {
     let video = document.querySelector("#videoPlayer");
     video.style.display = "none";
-    let canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector("#canvas");
     canvas.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
     let canvasStream = canvas.captureStream();
@@ -92,11 +95,13 @@ function getImage() {
   try {
     img = loadImage(imagePaths[seasonSelect.value]);
   }
-  catch {
-    img = loadImage(imagePaths['centerstage'])
+  catch (error) {
+    img = loadImage(imagePaths['centerstage']);
+    console.error("Error loading image: ", error);
   }
 }
 function initHTML() {
+  rotationInput = document.getElementById('rotationInput');
   var canvas = document.querySelector('canvas');
   canvas.addEventListener('contextmenu', function (e) {
     e.preventDefault();
@@ -187,12 +192,16 @@ function uploadPath() {
   fileInput.click();
 }
 function draw() {
-  document.getElementById("pausedText").innerHTML = isPaused ? "PAUSED" :
+  fieldsActive = [waypointAngleField, waypointDescriptionField,
+    waypointIndexField, waypointWaitTimeField, waypointXField, waypointYField, posInput, rotationInput]
+    .includes(document.activeElement);
+  document.getElementById("pausedText").innerHTML = (isPaused ? "PAUSED\n" :
+    "") +
     (mediaRec && mediaRec.state === 'recording' ? "<span style='color: red;'>RECORDING<span>" : "");
   background(220, 255);
   doPath();
 
-  img.resize(550, 550);
+  img.resize(width, height);
   push();
   translate(width / 2, height / 2);
   rotate(-HALF_PI);
@@ -207,8 +216,8 @@ function draw() {
 }
 
 function drawGrid() {
-  for (let i = 0; i < gridSize; i++) {
-    for (let j = 0; j < gridSize; j++) {
+  for (let i = 0; i < FieldDataConfig.gridSize; i++) {
+    for (let j = 0; j < FieldDataConfig.gridSize; j++) {
       let x = (i - 3) * squareSize + width / 2;
       let y = (j - 3) * squareSize + height / 2;
       fill(100, alpha = 30);
@@ -233,7 +242,7 @@ function doPath() {
   }
   if (!isPaused && tempWaypoints.length > 0) {
     if (currentTime - lastTime > delayTime) {
-      let d = 0.045 * speedFactor;
+      let d = 0.045 * robot.speedFactor;
       let point = tempWaypoints[0];
       // Gradually rotate towards the target angle
       rotationAngle = lerp(rotationAngle, radians(point.angle), 0.04);
@@ -247,7 +256,7 @@ function doPath() {
 
       // Check if the robot is close enough to the waypoint
       let distance = dist(robot.x, robot.y, point.x, point.y);
-      if (distance < tolerance) {
+      if (distance < robot.tolerance) {
         robot.setX(point.x);
         robot.setY(point.y);
         rotationAngle = radians(point.angle);
@@ -269,11 +278,11 @@ function mousePressed() {
   isDragging = false;
   draggedWaypoint = -1;
 
-  if (mouseButton === CENTER) {
+  if (mouseButton === CENTER || (mouseButton == LEFT && controlPressed)) {
     cursor('default');
     let canvasMouse = createVector(mouseX - 250, mouseY + 200);
     let worldMouse = canvasToWorld(canvasMouse);
-    let newWaypoint = new Waypoint(constrain(worldMouse.x, minX, maxX), constrain(worldMouse.y, minY, maxY), 0, "", 0);
+    let newWaypoint = new Waypoint(constrain(worldMouse.x, FieldDataConfig.minX, FieldDataConfig.maxX), constrain(worldMouse.y, FieldDataConfig.minY, FieldDataConfig.maxY), 0, "", 0);
     waypoints.push(newWaypoint);
     tempWaypoints.push(newWaypoint);
     cursor('default');
@@ -320,8 +329,8 @@ function mouseDragged() {
       let canvasMouse = createVector(mouseX - 250, mouseY + 200);
       let worldMouse = canvasToWorld(canvasMouse);
       // Use dragOffset to adjust the waypoint position accurately
-      waypoints[draggedWaypoint].x = constrain(worldMouse.x, minX, maxX);
-      waypoints[draggedWaypoint].y = constrain(worldMouse.y, minY, maxY);
+      waypoints[draggedWaypoint].x = constrain(worldMouse.x, FieldDataConfig.minX, FieldDataConfig.maxX);
+      waypoints[draggedWaypoint].y = constrain(worldMouse.y, FieldDataConfig.minY, FieldDataConfig.maxY);
       updateWaypointInputFields();
     }
   }
@@ -398,6 +407,7 @@ function drawArrow(x, y, angle) {
 }
 
 function keyTyped() {
+  if (fieldsActive) return;
   if (key === 'z') {
     showImage = !showImage;
   } else if (key === 'r') {
@@ -424,26 +434,26 @@ function restart() {
 }
 
 function updateRotation() {
-  let rotationInput = document.getElementById('rotationInput');
   rotationAngle = radians(parseFloat(rotationInput.value));
 }
 
 function updateRotationInput() {
-  let rotationInput = document.getElementById('rotationInput');
   rotationInput.value = parseFloat(degrees(rotationAngle).toFixed(2));
 }
 
 let wheelSize;
 let wheelOffset;
 class Robot {
-  constructor(x, y, size) {
+  constructor(x, y, size, tolerance) {
     this.x = x;
     this.y = y;
+    this.tolerance = tolerance;
     this.size = size;
     this.wheelSize = size * 0.2;
     this.wheelOffset = size * 0.4;
     this.getPos();
     this.color = color(2, 136, 2);
+    this.speedFactor = 1.5;
   }
   setX(newX) {
     this.x = newX;
@@ -523,23 +533,18 @@ class Waypoint {
 }
 function updateWaypointInputFields() {
   let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
-  document.getElementById("waypoint-edit-waypointx").value = waypoints[index].x;
-  document.getElementById("waypoint-edit-waypointy").value = waypoints[index].y;
-  document.getElementById("waypoint-edit-waypointangle").value = waypoints[index].angle;
-  document.getElementById('waypoint-edit-description').value = waypoints[index].description;
-  document.getElementById("waypoint-edit-waypointwaittime").value = waypoints[index].waitTime;
+  waypointXField.value = waypoints[index].x;
+  waypointYField.value = waypoints[index].y;
+  waypointAngleField.value = waypoints[index].angle;
+  waypointDescriptionField.value = waypoints[index].description;
+  waypointWaitTimeField.value = waypoints[index].waitTime;
 }
 function updateWayPointValues() {
-  let index = parseInt(document.getElementById('waypoint-edit-waypointnum').value);
-  waypoints[index].x = constrain(document.getElementById("waypoint-edit-waypointx").value, minX, maxX);
-  waypoints[index].y = constrain(document.getElementById("waypoint-edit-waypointy").value, minY, maxY);
-  waypoints[index].angle = document.getElementById("waypoint-edit-waypointangle").value;
-  waypoints[index].description = document.getElementById('waypoint-edit-description').value;
-  waypoints[index].waitTime = document.getElementById('waypoint-edit-waypointwaittime').value;
+  let index = parseInt(waypointIndexField.value);
+  waypoints[index].x = constrain(waypointXField.value, FieldDataConfig.minX, FieldDataConfig.maxX);
+  waypoints[index].y = constrain(waypointYField.value, FieldDataConfig.minY, FieldDataConfig.maxY);
+  waypoints[index].angle = waypointAngleField.value;
+  waypoints[index].description = waypointDescriptionField.value;
+  waypoints[index].waitTime = waypointWaitTimeField.value;
   updateWaypointInputFields();
-}
-async function wait(sec) {
-  return new Promise(resolve => {
-    setTimeout(resolve, sec * 1000);
-  });
 }
