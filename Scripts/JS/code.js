@@ -37,7 +37,6 @@ function setup() {
   tempWaypoints = Array.from(waypoints);
   initHTML();
   initRecording();
-  document.styleSheets[0].insertRule('*:not([data-cursor="default"]) { cursor: auto !important; }', 0);
 }
 function initRecording() {
   let recButton = document.querySelector("#startRecording");
@@ -282,7 +281,8 @@ function mousePressed() {
     cursor('default');
     let canvasMouse = createVector(mouseX - 250, mouseY + 200);
     let worldMouse = canvasToWorld(canvasMouse);
-    let newWaypoint = new Waypoint(constrain(worldMouse.x, FieldDataConfig.minX, FieldDataConfig.maxX), constrain(worldMouse.y, FieldDataConfig.minY, FieldDataConfig.maxY), 0, "", 0);
+    let newWaypoint = new Waypoint(constrain(worldMouse.x, FieldDataConfig.minX, FieldDataConfig.maxX),
+      constrain(worldMouse.y, FieldDataConfig.minY, FieldDataConfig.maxY), 0, "", 0);
     waypoints.push(newWaypoint);
     tempWaypoints.push(newWaypoint);
     cursor('default');
