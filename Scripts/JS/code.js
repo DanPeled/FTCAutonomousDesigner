@@ -308,6 +308,8 @@ function mousePressed() {
         isDragging = true;
         draggedWaypoint = i;
         dragOffset = createVector(mouseX - waypointX, mouseY - waypointY);
+        document.getElementById('waypoint-edit-waypointnum').value = draggedWaypoint;
+        updateWaypointInputFields();
         break;
       }
     }
@@ -373,15 +375,21 @@ function drawWaypoints() {
   for (let i = 0; i < waypoints.length; i++) {
     let x = calculateWaypointX(waypoints[i].x);
     let y = calculateWaypointY(waypoints[i].y);
-
-    // Draw waypoint circle
     fill(0, 0, 255);
-    ellipse(x, y, 20, 20);
+    // Draw waypoint circle
+    if (draggedWaypoint == i) {
+      ellipse(x, y, 25, 25);
+      fill(255, 255, 255);
+      textSize(15);
+    } else {
+      ellipse(x, y, 20, 20);
+      fill(0);
+      textSize(12);
+    }
 
     // Draw waypoint index
-    fill(0);
-    textSize(12);
     textAlign(CENTER, CENTER);
+    textStyle(draggedWaypoint == i ? 'Bold' : "Normal");
     text(i, x, y);
 
     // Draw arrow indicating direction

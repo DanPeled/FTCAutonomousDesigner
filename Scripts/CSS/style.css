@@ -6,7 +6,7 @@ body {
 }
 
 body {
-  background-color: rgb(96, 87, 87);
+  background-color: rgb(29, 26, 26);
   font-family: Arial, sans-serif;
 }
 
@@ -22,11 +22,13 @@ canvas {
   position: absolute;
   left: 20%;
   top: 10%;
-  outline: 3px solid black;
+  outline: 4px solid rgb(0, 0, 0);
 }
+
 canvas:hover {
   cursor: default !important;
 }
+
 button {
   display: inline-block;
   padding: 10px 20px;
@@ -96,7 +98,11 @@ select {
   border-radius: 5px;
   color: #ffffff;
   background-color: #3498db;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+select:hover {
+  background-color: #2f7fb4;
 }
 
 #waypoint-edit {
