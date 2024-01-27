@@ -51,7 +51,7 @@
 1. **Adding Waypoints:**
    - Left-click on the field to add a waypoint.
    - Right-click on a waypoint to remove it.
-   - Center-click to add a default waypoint.
+   - Center-click / CTRL + Left-click to add a default waypoint.
 
 2. **Moving Robot:**
    - Adjust the rotation angle using the input field.
