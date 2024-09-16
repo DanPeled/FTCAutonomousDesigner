@@ -12,13 +12,16 @@ let waypointXField = document.getElementById('waypoint-edit-waypointx');
 let waypointYField = document.getElementById('waypoint-edit-waypointy');
 let waypointDescriptionField = document.getElementById('waypoint-edit-description');
 let waypointIndexField = document.getElementById('waypoint-edit-waypointnum');
+
 const imagePaths = {
   "centerstage": 'Images/centerstage.webp',
   'powerplay': 'Images/powerplay.png',
   'freightfrenzy': "Images/freightfrenzy.png",
   'skystone': "Images/skystone.jpg",
-  "ultimategoal": "Images/ultimategoal.jpg"
+  "ultimategoal": "Images/ultimategoal.jpg",
+  "intothedeep": "Images/intothedeep.webp"
 };
+
 function setup() {
   posInput = document.getElementById('posInput');
   seasonSelect = document.getElementById('season-select');
